@@ -2,8 +2,13 @@
 
 import axios from 'axios';
 
-// Get the API URL from environment variables, or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Get the API URL from environment variables, or default to relative in production / localhost in development
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+    ? import.meta.env.VITE_API_URL
+    : import.meta.env.PROD
+    ? ''
+    : 'http://localhost:8000';
 
 // Create a pre-configured Axios instance
 export const api = axios.create({

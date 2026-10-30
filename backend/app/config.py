@@ -10,8 +10,10 @@ class Settings:
     # hacky fix for now: default secret key should be changed before going live
     SECRET_KEY = os.environ.get('SECRET_KEY', 'healthlens-dev-secret-key-change-in-production')
     
-    # default to local sqlite inside backend directory
-    DATABASE_URL = os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'healthlens.db'}")
+    # default to local sqlite inside backend directory, or /tmp when running serverless on Vercel
+    is_vercel = os.environ.get("VERCEL") == "1" or os.environ.get("VERCEL_ENV") is not None or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
+    default_db = "sqlite:////tmp/healthlens.db" if is_vercel else f"sqlite:///{BASE_DIR / 'healthlens.db'}"
+    DATABASE_URL = os.environ.get('DATABASE_URL', default_db)
     
     # OpenAI API for AI features
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
@@ -24,6 +26,7 @@ class Settings:
     # Default model for NVIDIA NIM
     NVIDIA_MODEL = os.environ.get('NVIDIA_MODEL', 'nvidia/nemotron-3.5-bolt-e4b')
     
-    UPLOAD_DIR = os.environ.get('UPLOAD_DIR', 'uploads')
+    default_upload = "/tmp/uploads" if is_vercel else "uploads"
+    UPLOAD_DIR = os.environ.get('UPLOAD_DIR', default_upload)
 
 settings = Settings()

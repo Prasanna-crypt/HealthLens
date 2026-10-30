@@ -1,0 +1,7 @@
+# Optional offline OCR dependencies for local GPU/CPU machines
+# Note: Do NOT install these in serverless environments (AWS Lambda / Vercel)
+# as their bundled machine learning weights exceed the 500MB function limit.
+
+-r requirements.txt
+paddleocr>=2.8.0
+opencv-python-headless>=4.8.0

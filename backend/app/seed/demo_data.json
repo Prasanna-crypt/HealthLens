@@ -1,0 +1,86 @@
+[
+  {
+    "title": "CBC Report - January 2024",
+    "patient": "Demo Patient",
+    "date": "2024-01-15",
+    "summary": "DEMO DATA — NOT REAL PATIENT INFORMATION\n\nYour report contains 10 analyzed parameters. Eight are within the provided reference ranges, while two are outside the ranges.\n\n**Abnormal Results:**\n- **Hemoglobin (11.2 g/dL):** This value is below the reference range of 12.0–17.5 g/dL. Low hemoglobin levels may be associated with various conditions and could suggest further evaluation may be warranted.\n- **WBC (12,500 /µL):** This value is above the reference range of 4,500–11,000 /µL. An elevated white blood cell count could suggest the body may be responding to various factors.\n- **Fasting Blood Glucose (110 mg/dL):** This value is above the reference range of 70–100 mg/dL. A slightly elevated fasting glucose level might warrant monitoring over time.\n\n**Important Observations:**\nAll other parameters including RBC, Platelets, Hematocrit, MCV, MCH, MCHC, and Creatinine are within their respective reference ranges.\n\nPlease consult a healthcare professional for proper interpretation of these results.",
+    "tests": [
+      {"test_name": "Hemoglobin", "value": 11.2, "unit": "g/dL", "status": "LOW", "ref_low": 12.0, "ref_high": 17.5, "category": "CBC"},
+      {"test_name": "WBC", "value": 12500, "unit": "/µL", "status": "HIGH", "ref_low": 4500, "ref_high": 11000, "category": "CBC"},
+      {"test_name": "RBC", "value": 4.8, "unit": "million/µL", "status": "NORMAL", "ref_low": 4.2, "ref_high": 5.7, "category": "CBC"},
+      {"test_name": "Platelets", "value": 250000, "unit": "/µL", "status": "NORMAL", "ref_low": 150000, "ref_high": 400000, "category": "CBC"},
+      {"test_name": "Hematocrit", "value": 38.0, "unit": "%", "status": "NORMAL", "ref_low": 36.0, "ref_high": 48.0, "category": "CBC"},
+      {"test_name": "MCV", "value": 88.0, "unit": "fL", "status": "NORMAL", "ref_low": 80.0, "ref_high": 100.0, "category": "CBC"},
+      {"test_name": "MCH", "value": 29.0, "unit": "pg", "status": "NORMAL", "ref_low": 27.0, "ref_high": 33.0, "category": "CBC"},
+      {"test_name": "MCHC", "value": 33.0, "unit": "g/dL", "status": "NORMAL", "ref_low": 32.0, "ref_high": 36.0, "category": "CBC"},
+      {"test_name": "Fasting Blood Glucose", "value": 110, "unit": "mg/dL", "status": "HIGH", "ref_low": 70, "ref_high": 100, "category": "Blood Glucose"},
+      {"test_name": "Creatinine", "value": 0.9, "unit": "mg/dL", "status": "NORMAL", "ref_low": 0.6, "ref_high": 1.2, "category": "Kidney Function"}
+    ]
+  },
+  {
+    "title": "Follow-up CBC - September 2024",
+    "patient": "Demo Patient",
+    "date": "2024-09-20",
+    "summary": "DEMO DATA — NOT REAL PATIENT INFORMATION\n\nYour follow-up report contains 10 analyzed parameters. All 10 are within the provided reference ranges.\n\n**Notable Improvements:**\n- **Hemoglobin** has improved from 11.2 to 13.5 g/dL, now within the normal range.\n- **WBC** has decreased from 12,500 to 8,500 /µL, now within the normal range.\n- **Fasting Blood Glucose** has decreased from 110 to 95 mg/dL, now within the normal range.\n\nAll parameters are within their respective reference ranges, which is a positive finding.\n\nPlease consult a healthcare professional for proper interpretation of these results.",
+    "tests": [
+      {"test_name": "Hemoglobin", "value": 13.5, "unit": "g/dL", "status": "NORMAL", "ref_low": 12.0, "ref_high": 17.5, "category": "CBC"},
+      {"test_name": "WBC", "value": 8500, "unit": "/µL", "status": "NORMAL", "ref_low": 4500, "ref_high": 11000, "category": "CBC"},
+      {"test_name": "RBC", "value": 5.0, "unit": "million/µL", "status": "NORMAL", "ref_low": 4.2, "ref_high": 5.7, "category": "CBC"},
+      {"test_name": "Platelets", "value": 220000, "unit": "/µL", "status": "NORMAL", "ref_low": 150000, "ref_high": 400000, "category": "CBC"},
+      {"test_name": "Hematocrit", "value": 41.0, "unit": "%", "status": "NORMAL", "ref_low": 36.0, "ref_high": 48.0, "category": "CBC"},
+      {"test_name": "MCV", "value": 86.0, "unit": "fL", "status": "NORMAL", "ref_low": 80.0, "ref_high": 100.0, "category": "CBC"},
+      {"test_name": "MCH", "value": 30.0, "unit": "pg", "status": "NORMAL", "ref_low": 27.0, "ref_high": 33.0, "category": "CBC"},
+      {"test_name": "MCHC", "value": 34.0, "unit": "g/dL", "status": "NORMAL", "ref_low": 32.0, "ref_high": 36.0, "category": "CBC"},
+      {"test_name": "Fasting Blood Glucose", "value": 95, "unit": "mg/dL", "status": "NORMAL", "ref_low": 70, "ref_high": 100, "category": "Blood Glucose"},
+      {"test_name": "Creatinine", "value": 1.0, "unit": "mg/dL", "status": "NORMAL", "ref_low": 0.6, "ref_high": 1.2, "category": "Kidney Function"}
+    ]
+  },
+  {
+    "title": "Lipid Profile - March 2024",
+    "patient": "Demo Patient",
+    "date": "2024-03-10",
+    "summary": "DEMO DATA — NOT REAL PATIENT INFORMATION\n\nYour lipid profile contains 4 analyzed parameters. One is within the provided reference range, while three are above and one is below.\n\n**Abnormal Results:**\n- **Total Cholesterol (245 mg/dL):** Above the desirable level of less than 200 mg/dL. Elevated cholesterol may be associated with increased cardiovascular risk factors.\n- **LDL Cholesterol (160 mg/dL):** Above the optimal level of less than 100 mg/dL. High LDL cholesterol could suggest increased risk and may warrant lifestyle modifications.\n- **HDL Cholesterol (35 mg/dL):** Below the recommended minimum of 40 mg/dL. Low HDL cholesterol might reduce the body's protective mechanisms.\n- **Triglycerides (180 mg/dL):** Above the normal level of less than 150 mg/dL.\n\nPlease consult a healthcare professional for proper interpretation of these results.",
+    "tests": [
+      {"test_name": "Total Cholesterol", "value": 245, "unit": "mg/dL", "status": "HIGH", "ref_low": 0, "ref_high": 200, "category": "Lipid Profile"},
+      {"test_name": "LDL Cholesterol", "value": 160, "unit": "mg/dL", "status": "HIGH", "ref_low": 0, "ref_high": 100, "category": "Lipid Profile"},
+      {"test_name": "HDL Cholesterol", "value": 35, "unit": "mg/dL", "status": "LOW", "ref_low": 40, "ref_high": 60, "category": "Lipid Profile"},
+      {"test_name": "Triglycerides", "value": 180, "unit": "mg/dL", "status": "HIGH", "ref_low": 0, "ref_high": 150, "category": "Lipid Profile"}
+    ]
+  },
+  {
+    "title": "Thyroid Function - June 2024",
+    "patient": "Demo Patient",
+    "date": "2024-06-05",
+    "summary": "DEMO DATA — NOT REAL PATIENT INFORMATION\n\nYour thyroid function panel contains 4 analyzed parameters. Three are within the provided reference ranges, while one is above.\n\n**Abnormal Results:**\n- **TSH (5.2 mIU/L):** Above the reference range of 0.4–4.0 mIU/L. An elevated TSH level with normal T3, T4, and Free T4 values could suggest the thyroid may need to be monitored over time.\n\n**Important Observations:**\nT3, T4, and Free T4 are all within their respective reference ranges, which may indicate the thyroid is currently producing adequate hormone levels.\n\nPlease consult a healthcare professional for proper interpretation of these results.",
+    "tests": [
+      {"test_name": "TSH", "value": 5.2, "unit": "mIU/L", "status": "HIGH", "ref_low": 0.4, "ref_high": 4.0, "category": "Thyroid"},
+      {"test_name": "T3", "value": 120, "unit": "ng/dL", "status": "NORMAL", "ref_low": 80, "ref_high": 200, "category": "Thyroid"},
+      {"test_name": "T4", "value": 6.5, "unit": "µg/dL", "status": "NORMAL", "ref_low": 5.0, "ref_high": 12.0, "category": "Thyroid"},
+      {"test_name": "Free T4", "value": 1.1, "unit": "ng/dL", "status": "NORMAL", "ref_low": 0.8, "ref_high": 1.8, "category": "Thyroid"}
+    ]
+  },
+  {
+    "title": "Liver Function - April 2024",
+    "patient": "Demo Patient",
+    "date": "2024-04-18",
+    "summary": "DEMO DATA — NOT REAL PATIENT INFORMATION\n\nYour liver function panel contains 5 analyzed parameters. Three are within the provided reference ranges, while two are above.\n\n**Abnormal Results:**\n- **ALT (45 U/L):** Above the reference range of 4–36 U/L. Mildly elevated ALT levels could be associated with various factors and may warrant follow-up.\n- **AST (38 U/L):** Above the reference range of 8–33 U/L. A mildly elevated AST level, together with the elevated ALT, might suggest further evaluation could be considered.\n\n**Important Observations:**\nTotal Bilirubin, Albumin, and ALP are all within their respective reference ranges.\n\nPlease consult a healthcare professional for proper interpretation of these results.",
+    "tests": [
+      {"test_name": "ALT", "value": 45, "unit": "U/L", "status": "HIGH", "ref_low": 4, "ref_high": 36, "category": "Liver Function"},
+      {"test_name": "AST", "value": 38, "unit": "U/L", "status": "HIGH", "ref_low": 8, "ref_high": 33, "category": "Liver Function"},
+      {"test_name": "Total Bilirubin", "value": 0.8, "unit": "mg/dL", "status": "NORMAL", "ref_low": 0.1, "ref_high": 1.2, "category": "Liver Function"},
+      {"test_name": "Albumin", "value": 4.2, "unit": "g/dL", "status": "NORMAL", "ref_low": 3.4, "ref_high": 5.4, "category": "Liver Function"},
+      {"test_name": "ALP", "value": 95, "unit": "U/L", "status": "NORMAL", "ref_low": 44, "ref_high": 147, "category": "Liver Function"}
+    ]
+  },
+  {
+    "title": "Kidney Function - July 2024",
+    "patient": "Demo Patient",
+    "date": "2024-07-22",
+    "summary": "DEMO DATA — NOT REAL PATIENT INFORMATION\n\nYour kidney function panel contains 3 analyzed parameters. One is within the provided reference range, while two are above.\n\n**Abnormal Results:**\n- **Creatinine (1.4 mg/dL):** Above the reference range of 0.6–1.2 mg/dL. Elevated creatinine levels could suggest the kidneys may benefit from further evaluation.\n- **BUN (22 mg/dL):** Above the reference range of 6–20 mg/dL. A mildly elevated BUN level, together with the elevated creatinine, might warrant additional testing.\n\n**Important Observations:**\nUric Acid is within the reference range at 5.5 mg/dL.\n\nPlease consult a healthcare professional for proper interpretation of these results.",
+    "tests": [
+      {"test_name": "Creatinine", "value": 1.4, "unit": "mg/dL", "status": "HIGH", "ref_low": 0.6, "ref_high": 1.2, "category": "Kidney Function"},
+      {"test_name": "BUN", "value": 22, "unit": "mg/dL", "status": "HIGH", "ref_low": 6, "ref_high": 20, "category": "Kidney Function"},
+      {"test_name": "Uric Acid", "value": 5.5, "unit": "mg/dL", "status": "NORMAL", "ref_low": 3.0, "ref_high": 7.0, "category": "Kidney Function"}
+    ]
+  }
+]

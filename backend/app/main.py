@@ -51,6 +51,8 @@ def startup_event():
                         )
                         db.add(rr)
                     db.commit()
+    except Exception as e:
+        print(f"[HealthLens] Startup seed notice: {e}")
     finally:
         db.close()
 

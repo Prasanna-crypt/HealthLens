@@ -22,19 +22,6 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-# Vercel Path Restoration Middleware:
-# When Vercel rewrites to /api/index.py, the original request path is in the 'x-matched-path' header.
-# Restoring it in the ASGI scope ensures FastAPI routes the request to the correct handler.
-@app.middleware("http")
-async def restore_vercel_path(request: Request, call_next):
-    original_path = request.headers.get("x-matched-path")
-    if original_path:
-        request.scope["path"] = original_path
-    elif request.scope.get("path", "").startswith("/api/index.py"):
-        sub = request.scope["path"][len("/api/index.py"):]
-        request.scope["path"] = sub if sub else "/"
-    return await call_next(request)
-
 # Register all routers with both "/api" and direct prefixes for 100% routing resilience
 for prefix in ["/api", ""]:
     app.include_router(auth.router, prefix=f"{prefix}/auth", tags=["auth"])
@@ -72,9 +59,9 @@ def startup_event():
     finally:
         db.close()
 
-@app.get("/")
-@app.get("/api")
-@app.get("/api/index.py")
+@app.api_route("/", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/api", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/api/index.py", methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
 def root():
     return {"status": "ok", "service": "HealthLens Backend API"}
 

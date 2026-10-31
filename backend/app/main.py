@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="HealthLens API")
 
-# TODO: lock down CORS origins before prod
+# Allow all origins for CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -21,12 +21,15 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
-app.include_router(results.router, prefix="/api/results", tags=["results"])
-app.include_router(demo.router, prefix="/api/demo", tags=["demo"])
-app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
-app.include_router(profile.router, prefix="/api/profile", tags=["profile"])
+# Register all routers with both "/api" and direct prefixes
+# This ensures 100% compatibility whether Vercel preserves or strips the /api prefix
+for prefix in ["/api", ""]:
+    app.include_router(auth.router, prefix=f"{prefix}/auth", tags=["auth"])
+    app.include_router(reports.router, prefix=f"{prefix}/reports", tags=["reports"])
+    app.include_router(results.router, prefix=f"{prefix}/results", tags=["results"])
+    app.include_router(demo.router, prefix=f"{prefix}/demo", tags=["demo"])
+    app.include_router(ai.router, prefix=f"{prefix}/ai", tags=["ai"])
+    app.include_router(profile.router, prefix=f"{prefix}/profile", tags=["profile"])
 
 @app.on_event("startup")
 def startup_event():
@@ -57,9 +60,11 @@ def startup_event():
         db.close()
 
 @app.get("/")
+@app.get("/api")
 def root():
     return {"status": "ok", "service": "HealthLens Backend API"}
 
+@app.get("/health")
 @app.get("/api/health")
 def health_check():
     return {"status": "ok"}

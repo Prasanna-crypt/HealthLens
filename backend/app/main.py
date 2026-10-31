@@ -76,7 +76,7 @@ async def not_found_handler(request: Request, exc):
         content={
             "detail": "Not Found",
             "scope_path": request.scope.get("path"),
-            "x_matched_path": request.headers.get("x-matched-path"),
-            "x_forwarded_uri": request.headers.get("x-forwarded-uri")
+            "scope_query": request.scope.get("query_string", b"").decode("latin1"),
+            "headers": {k.decode("latin1"): v.decode("latin1") for k, v in request.scope.get("headers", [])}
         }
     )

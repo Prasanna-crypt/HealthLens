@@ -11,17 +11,12 @@ os.environ["VERCEL"] = "1"
 
 from app.main import app as fastapi_app
 
-# Pure ASGI entrypoint: modifies ASGI scope before FastAPI router evaluates methods & paths
+# Pure ASGI entrypoint: strips /api/index.py prefix if added by Vercel serverless routing
 async def app(scope, receive, send):
     if scope["type"] == "http":
-        headers = dict(scope.get("headers", []))
-        
-        # When Vercel rewrites to /api/index.py, the client's actual request URL is in x-matched-path
-        matched = headers.get(b"x-matched-path")
-        if matched:
-            scope["path"] = matched.decode("utf-8")
-        elif scope.get("path", "").startswith("/api/index.py"):
-            sub = scope["path"][len("/api/index.py"):]
+        path = scope.get("path", "")
+        if path.startswith("/api/index.py"):
+            sub = path[len("/api/index.py"):]
             scope["path"] = sub if sub else "/"
             
     await fastapi_app(scope, receive, send)

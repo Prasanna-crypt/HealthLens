@@ -111,7 +111,7 @@ export const UploadPage: React.FC = () => {
   const totalTests = extractedData?.length || 0;
   const normalTests = extractedData?.filter(r => r.status === 'NORMAL').length || 0;
   const abnormalTests = extractedData?.filter(r => r.status === 'LOW' || r.status === 'HIGH').length || 0;
-  const avgConfidence = extractedData && extractedData.length > 0
+  const avgConfidence = Array.isArray(extractedData) && extractedData.length > 0
     ? Math.round((extractedData.reduce((acc, curr) => acc + (curr.ocr_confidence || 1), 0) / extractedData.length) * 100)
     : 100;
 

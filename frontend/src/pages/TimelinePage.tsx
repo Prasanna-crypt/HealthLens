@@ -16,8 +16,9 @@ export const TimelinePage: React.FC = () => {
     const fetchReports = async () => {
       try {
         const res = await reportsAPI.list();
+        const list = Array.isArray(res?.data) ? res.data : [];
         // Sort newest first
-        setReports(res.data.sort((a: ReportListItem, b: ReportListItem) => new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()));
+        setReports(list.sort((a: ReportListItem, b: ReportListItem) => new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()));
       } catch (err: any) {
         setError(err.response?.data?.detail || 'Failed to load timeline');
       } finally {

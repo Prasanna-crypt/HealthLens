@@ -24,7 +24,7 @@ export const ReportsPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await reportsAPI.list();
-      setReports(res.data);
+      setReports(Array.isArray(res?.data) ? res.data : []);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to fetch reports');
     } finally {

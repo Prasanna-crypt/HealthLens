@@ -19,7 +19,7 @@ export const DashboardPage: React.FC = () => {
     const fetchDashboardData = async () => {
       try {
         const listRes = await reportsAPI.list();
-        const reportList: ReportListItem[] = listRes.data;
+        const reportList: ReportListItem[] = Array.isArray(listRes?.data) ? listRes.data : [];
         setReports(reportList);
 
         if (reportList.length > 0) {
@@ -29,8 +29,10 @@ export const DashboardPage: React.FC = () => {
           )[0];
 
           // Fetch full report details to get test results for the table
-          const fullReportRes = await reportsAPI.get(latest.id);
-          setLatestReportDetails(fullReportRes.data);
+          if (latest?.id) {
+            const fullReportRes = await reportsAPI.get(latest.id);
+            setLatestReportDetails(fullReportRes?.data || null);
+          }
         }
       } catch (err: any) {
         setError(err.response?.data?.detail || 'Failed to load dashboard data');
@@ -44,7 +46,9 @@ export const DashboardPage: React.FC = () => {
   if (loading) return <LoadingSpinner text="Loading dashboard..." />;
   if (error) return <ErrorMessage message={error} />;
 
-  if (reports.length === 0) {
+  const safeReports = Array.isArray(reports) ? reports : [];
+
+  if (safeReports.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fade-in">
         <div className="w-24 h-24 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-6">
@@ -62,11 +66,11 @@ export const DashboardPage: React.FC = () => {
   }
 
   // Aggregate stats across all reports
-  const totalReports = reports.length;
-  const totalTests = reports.reduce((acc, r) => acc + r.total_tests, 0);
-  const totalNormal = reports.reduce((acc, r) => acc + r.normal_count, 0);
-  const totalLow = reports.reduce((acc, r) => acc + r.low_count, 0);
-  const totalHigh = reports.reduce((acc, r) => acc + r.high_count, 0);
+  const totalReports = safeReports.length;
+  const totalTests = safeReports.reduce((acc, r) => acc + (r.total_tests || 0), 0);
+  const totalNormal = safeReports.reduce((acc, r) => acc + (r.normal_count || 0), 0);
+  const totalLow = safeReports.reduce((acc, r) => acc + (r.low_count || 0), 0);
+  const totalHigh = safeReports.reduce((acc, r) => acc + (r.high_count || 0), 0);
   const totalAbnormal = totalLow + totalHigh;
 
   // Donut chart color scheme matching the mockup

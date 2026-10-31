@@ -10,6 +10,7 @@ from ..utils.security import hash_password, verify_password, create_access_token
 router = APIRouter()
 
 @router.post("/register", response_model=UserResponse)
+@router.post("/register/", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user.email).first():
         raise HTTPException(
@@ -29,6 +30,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=TokenResponse)
+@router.post("/login/", response_model=TokenResponse)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == form_data.username).first()
     
@@ -43,5 +45,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/me", response_model=UserResponse)
+@router.get("/me/", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user

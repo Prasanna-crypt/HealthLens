@@ -41,3 +41,5 @@ yarn-error.log*
 Thumbs.db
 *.swp
 *.log
+
+.vercel

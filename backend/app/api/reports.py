@@ -138,6 +138,7 @@ def save_extracted_report(
 
 
 # List Endpoint: Get all reports belonging to the current user
+@router.get("", response_model=List[ReportListResponse])
 @router.get("/", response_model=List[ReportListResponse])
 def get_reports(
     current_user: User = Depends(get_current_user),

@@ -59,9 +59,8 @@ def startup_event():
     finally:
         db.close()
 
-@app.api_route("/", methods=["GET", "POST", "OPTIONS"])
-@app.api_route("/api", methods=["GET", "POST", "OPTIONS"])
-@app.api_route("/api/index.py", methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
+@app.get("/")
+@app.get("/api")
 def root():
     return {"status": "ok", "service": "HealthLens Backend API"}
 

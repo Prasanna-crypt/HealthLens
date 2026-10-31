@@ -26,15 +26,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('healthlens_token');
-      if (token) {
+      if (token && token !== 'undefined' && token !== 'null' && token.trim() !== '') {
         try {
           // If we have a token, fetch the user's details
           const res = await authAPI.getMe();
-          setUser(res.data);
+          if (res?.data?.id || res?.data?.email) {
+            setUser(res.data);
+          } else {
+            localStorage.removeItem('healthlens_token');
+            setUser(null);
+          }
         } catch (error) {
           // If token is invalid, remove it
           localStorage.removeItem('healthlens_token');
+          setUser(null);
         }
+      } else {
+        localStorage.removeItem('healthlens_token');
+        setUser(null);
       }
       setLoading(false); // Finished checking
     };
@@ -44,6 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     // 1. Send credentials to server
     const res = await authAPI.login(username, password);
+    if (!res?.data?.access_token) {
+      throw new Error(res?.data?.detail || 'Invalid credentials or login response');
+    }
     // 2. Save the token to local storage
     localStorage.setItem('healthlens_token', res.data.access_token);
     // 3. Fetch user details and update state

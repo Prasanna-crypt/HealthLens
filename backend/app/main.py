@@ -68,3 +68,15 @@ def root():
 @app.get("/api/health")
 def health_check():
     return {"status": "ok"}
+
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": "Not Found",
+            "scope_path": request.scope.get("path"),
+            "x_matched_path": request.headers.get("x-matched-path"),
+            "x_forwarded_uri": request.headers.get("x-forwarded-uri")
+        }
+    )

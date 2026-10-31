@@ -56,6 +56,10 @@ def startup_event():
     finally:
         db.close()
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "HealthLens Backend API"}
+
 @app.get("/api/health")
 def health_check():
     return {"status": "ok"}

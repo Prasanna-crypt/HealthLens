@@ -2,9 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
 
-# need check_same_thread false for sqlite + fastapi otherwise it complains
+connect_args = {'check_same_thread': False} if "sqlite" in settings.DATABASE_URL else {}
 engine = create_engine(
-    settings.DATABASE_URL, connect_args={'check_same_thread': False}
+    settings.DATABASE_URL, connect_args=connect_args
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

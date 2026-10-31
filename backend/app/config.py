@@ -7,11 +7,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(dotenv_path=BASE_DIR / ".env")
 
 class Settings:
-    # hacky fix for now: default secret key should be changed before going live
     SECRET_KEY = os.environ.get('SECRET_KEY', 'healthlens-dev-secret-key-change-in-production')
     
     # default to local sqlite inside backend directory, or /tmp when running serverless on Vercel
-    is_vercel = os.environ.get("VERCEL") == "1" or os.environ.get("VERCEL_ENV") is not None or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
+    is_vercel = (
+        os.environ.get("VERCEL") == "1"
+        or os.environ.get("VERCEL_ENV") is not None
+        or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None
+        or not os.access(str(BASE_DIR), os.W_OK)
+        or "/vercel" in str(BASE_DIR)
+    )
     default_db = "sqlite:////tmp/healthlens.db" if is_vercel else f"sqlite:///{BASE_DIR / 'healthlens.db'}"
     DATABASE_URL = os.environ.get('DATABASE_URL', default_db)
     

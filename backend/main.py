@@ -1,27 +1,12 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from database import engine, Base
-from routers import auth, reports, results, demo
+import sys
+import os
+from pathlib import Path
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Add backend directory to sys.path so 'app' imports resolve properly
+backend_dir = Path(__file__).resolve().parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
-app = FastAPI(title="HealthLens API")
+os.environ["VERCEL"] = "1"
 
-# Setup CORS to allow React frontend to connect
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this to frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(auth.router)
-app.include_router(reports.router)
-app.include_router(results.router)
-app.include_router(demo.router)
-
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to HealthLens API"}
+from app.main import app

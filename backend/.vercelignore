@@ -1,0 +1,33 @@
+# Python virtual environments & cache
+.venv/
+.venv-*/
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node
+node_modules/
+
+# Databases & User uploads
+*.db
+*.sqlite
+*.sqlite3
+healthlens.db
+uploads/
+
+# Secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# Git & IDEs
+.git/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

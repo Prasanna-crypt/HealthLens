@@ -84,7 +84,9 @@ def load_demo_data(
         
         db.commit()
         from ..services.comparison_service import calculate_changes
+        from ..services.pattern_service import detect_patterns
         calculate_changes(report.id, current_user.id, db)
+        detect_patterns(report.id, current_user.id, db)
         created_count += 1
 
     return {"message": f"Successfully loaded {created_count} demo reports", "count": created_count}

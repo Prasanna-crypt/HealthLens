@@ -22,7 +22,23 @@ export const PatternsPage: React.FC = () => {
     const fetchPatterns = async () => {
       try {
         const res = await api.get('/results/patterns');
-        setPatterns(res.data);
+        const data = Array.isArray(res?.data) ? res.data : [];
+        const clean = data.map((p: any) => ({
+          ...p,
+          related_tests: Array.isArray(p.related_tests)
+            ? p.related_tests
+            : typeof p.related_tests === 'string'
+            ? (() => {
+                try {
+                  const parsed = JSON.parse(p.related_tests);
+                  return Array.isArray(parsed) ? parsed : [p.related_tests];
+                } catch {
+                  return [p.related_tests];
+                }
+              })()
+            : [],
+        }));
+        setPatterns(clean);
       } catch (err: any) {
         if (err.response?.status === 404 || err.code === 'ERR_NETWORK') {
           console.warn("API not ready, using mock data for /api/patterns");

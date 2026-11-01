@@ -67,9 +67,11 @@ export const ReportList: React.FC<Props> = ({ reports, selectedIds, onToggleSele
                   </div>
                   {/* Title & Date */}
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-xs" title={report.filename}>
-                      {report.filename}
-                    </h3>
+                    <Link to={`/dashboard?report=${report.id}`} className="group">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors truncate max-w-[200px] sm:max-w-xs cursor-pointer" title={report.filename}>
+                        {report.filename}
+                      </h3>
+                    </Link>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {report.report_date || new Date(report.upload_date).toLocaleDateString()}
                     </p>

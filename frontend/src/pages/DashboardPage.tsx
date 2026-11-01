@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { reportsAPI } from '../lib/api';
 import type { ReportListItem, Report, TestResult } from '../lib/types';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
@@ -9,6 +9,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const reportIdParam = searchParams.get('report');
   
   const [reports, setReports] = useState<ReportListItem[]>([]);
   const [latestReportDetails, setLatestReportDetails] = useState<Report | null>(null);
@@ -17,22 +19,34 @@ export const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setLoading(true);
       try {
         const listRes = await reportsAPI.list();
         const reportList: ReportListItem[] = Array.isArray(listRes?.data) ? listRes.data : [];
         setReports(reportList);
 
         if (reportList.length > 0) {
-          // Find latest report by upload_date
-          const latest = [...reportList].sort(
-            (a, b) => new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()
-          )[0];
+          // If a specific report is requested in query params, find it
+          let selected = reportIdParam
+            ? reportList.find((r) => r.id.toString() === reportIdParam)
+            : null;
 
-          // Fetch full report details to get test results for the table
-          if (latest?.id) {
-            const fullReportRes = await reportsAPI.get(latest.id);
+          // If not specified or not found in list, pick latest by report_date / upload_date
+          if (!selected) {
+            selected = [...reportList].sort((a, b) => {
+              const dateA = new Date(a.report_date || a.upload_date).getTime();
+              const dateB = new Date(b.report_date || b.upload_date).getTime();
+              return dateB - dateA;
+            })[0];
+          }
+
+          // Fetch full report details to get test results for the table and summary
+          if (selected?.id) {
+            const fullReportRes = await reportsAPI.get(selected.id);
             setLatestReportDetails(fullReportRes?.data || null);
           }
+        } else {
+          setLatestReportDetails(null);
         }
       } catch (err: any) {
         setError(err.response?.data?.detail || 'Failed to load dashboard data');
@@ -41,7 +55,7 @@ export const DashboardPage: React.FC = () => {
       }
     };
     fetchDashboardData();
-  }, []);
+  }, [reportIdParam]);
 
   if (loading) return <LoadingSpinner text="Loading dashboard..." />;
   if (error) return <ErrorMessage message={error} />;
@@ -65,38 +79,98 @@ export const DashboardPage: React.FC = () => {
     );
   }
 
-  // Aggregate stats across all reports
-  const totalReports = safeReports.length;
-  const totalTests = safeReports.reduce((acc, r) => acc + (r.total_tests || 0), 0);
-  const totalNormal = safeReports.reduce((acc, r) => acc + (r.normal_count || 0), 0);
-  const totalLow = safeReports.reduce((acc, r) => acc + (r.low_count || 0), 0);
-  const totalHigh = safeReports.reduce((acc, r) => acc + (r.high_count || 0), 0);
-  const totalAbnormal = totalLow + totalHigh;
+  const testResults: TestResult[] = latestReportDetails?.test_results || [];
 
-  // Donut chart color scheme matching the mockup
+  // Report-specific stats
+  const totalReportsCount = safeReports.length;
+  const currentReportTests = testResults.length > 0 ? testResults.length : (latestReportDetails?.total_tests || 0);
+  const currentNormal = testResults.length > 0 
+    ? testResults.filter(t => t.status === 'NORMAL').length 
+    : (latestReportDetails?.normal_count || 0);
+  const currentLow = testResults.length > 0 
+    ? testResults.filter(t => t.status === 'LOW').length 
+    : (latestReportDetails?.low_count || 0);
+  const currentHigh = testResults.length > 0 
+    ? testResults.filter(t => t.status === 'HIGH').length 
+    : (latestReportDetails?.high_count || 0);
+  const currentAbnormal = currentLow + currentHigh;
+
+  // Donut chart color scheme
   const COLOR_NORMAL = '#2dd4bf'; // Teal / Cyan
   const COLOR_LOW = '#facc15';    // Yellow
   const COLOR_HIGH = '#fb7185';   // Soft Red / Pink
 
   const pieData = [
-    { name: 'High', value: totalHigh, color: COLOR_HIGH },
-    { name: 'Low', value: totalLow, color: COLOR_LOW },
-    { name: 'Normal', value: totalNormal, color: COLOR_NORMAL },
+    { name: 'High', value: currentHigh, color: COLOR_HIGH },
+    { name: 'Low', value: currentLow, color: COLOR_LOW },
+    { name: 'Normal', value: currentNormal, color: COLOR_NORMAL },
   ].filter(d => d.value > 0);
-
-  const testResults: TestResult[] = latestReportDetails?.test_results || [];
 
   return (
     <div className="animate-fade-in space-y-6">
-      {/* Aggregate Quick Stats Row */}
+      {/* Active Report Header & Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/70 dark:bg-slate-900/80 p-4 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm backdrop-blur-md">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              {latestReportDetails?.filename || 'Medical Report'}
+            </h1>
+            {latestReportDetails?.is_demo && (
+              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                DEMO DATA
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Report Date: {latestReportDetails?.report_date || (latestReportDetails?.upload_date ? new Date(latestReportDetails.upload_date).toLocaleDateString() : 'N/A')}
+            {latestReportDetails?.patient_name && ` • Patient: ${latestReportDetails.patient_name}`}
+          </p>
+        </div>
+
+        {safeReports.length > 1 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              Viewing Report:
+            </span>
+            <select
+              value={latestReportDetails?.id || ''}
+              onChange={(e) => navigate(`/dashboard?report=${e.target.value}`)}
+              className="text-xs font-medium bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none cursor-pointer"
+            >
+              {safeReports.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.filename} ({r.report_date || r.upload_date?.slice(0, 10)})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* AI Summary Card (if available for this report) */}
+      {latestReportDetails?.ai_summary && (
+        <div className="card p-5 bg-gradient-to-r from-primary-50/60 to-indigo-50/60 dark:from-primary-950/20 dark:to-indigo-950/20 border border-primary-200/50 dark:border-primary-800/30 rounded-2xl">
+          <div className="flex items-center gap-2 mb-2">
+            <Activity className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+              AI Clinical Summary
+            </h3>
+          </div>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+            {latestReportDetails.ai_summary}
+          </p>
+        </div>
+      )}
+
+      {/* Quick Stats Row for Selected Report */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="card p-4 flex items-center space-x-4">
           <div className="p-3 bg-blue-100 text-blue-600 rounded-full dark:bg-blue-900/30 dark:text-blue-400">
             <FileText className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Reports</p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">{totalReports}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">All Reports</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{totalReportsCount}</p>
           </div>
         </div>
 
@@ -105,8 +179,8 @@ export const DashboardPage: React.FC = () => {
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Tests</p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">{totalTests}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Report Biomarkers</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{currentReportTests}</p>
           </div>
         </div>
 
@@ -116,7 +190,7 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Normal Results</p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">{totalNormal}</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{currentNormal}</p>
           </div>
         </div>
 
@@ -126,7 +200,7 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Abnormal Results</p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">{totalAbnormal}</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{currentAbnormal}</p>
           </div>
         </div>
       </div>
@@ -138,7 +212,7 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4 px-1">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Test Results</h2>
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              {testResults.length > 0 ? `${testResults.length} tests` : `${totalTests} tests`}
+              {testResults.length} tests in this report
             </span>
           </div>
 
@@ -195,7 +269,7 @@ export const DashboardPage: React.FC = () => {
                 ) : (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500 dark:text-gray-400">
-                      No test results found in the latest report.
+                      No test results found in this report.
                     </td>
                   </tr>
                 )}
@@ -211,7 +285,7 @@ export const DashboardPage: React.FC = () => {
               Results Distribution
             </h2>
             <p className="text-xs text-gray-500 dark:text-slate-400">
-              Overview of all biomarker classifications
+              Biomarker classifications for this report
             </p>
           </div>
 
@@ -250,7 +324,7 @@ export const DashboardPage: React.FC = () => {
             {/* Total Count centered inside the donut hole */}
             <div className="absolute flex flex-col items-center justify-center pointer-events-none text-center">
               <span className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                {totalTests}
+                {currentReportTests}
               </span>
               <span className="text-xs font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-widest mt-0.5">
                 Total
@@ -262,15 +336,15 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-center space-x-6 pt-2">
             <div className="flex items-center space-x-2">
               <span className="w-3 h-3 rounded-full bg-[#fb7185] inline-block shadow-sm"></span>
-              <span className="text-xs font-medium text-gray-700 dark:text-slate-300">High</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-slate-300">High ({currentHigh})</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="w-3 h-3 rounded-full bg-[#facc15] inline-block shadow-sm"></span>
-              <span className="text-xs font-medium text-gray-700 dark:text-slate-300">Low</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-slate-300">Low ({currentLow})</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="w-3 h-3 rounded-full bg-[#2dd4bf] inline-block shadow-sm"></span>
-              <span className="text-xs font-medium text-gray-700 dark:text-slate-300">Normal</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-slate-300">Normal ({currentNormal})</span>
             </div>
           </div>
         </div>

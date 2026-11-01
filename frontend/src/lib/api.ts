@@ -36,9 +36,14 @@ api.interceptors.response.use(
   (response) => response, // If successful, just return the response
   (error) => {
     // If the server says "401 Unauthorized", our token is invalid or expired
-    if (error.response?.status === 401) {
+    // CRITICAL: Do NOT redirect to /login if the 401 error is from the login or register requests!
+    const url = error.config?.url || '';
+    const isAuthRequest = url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/reset-password');
+    if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem('healthlens_token'); // Clear bad token
-      window.location.href = '/login'; // Force user back to login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'; // Force user back to login page
+      }
     }
     return Promise.reject(error);
   }
@@ -48,16 +53,20 @@ api.interceptors.response.use(
 // Handles user login, registration, and getting user details
 export const authAPI = {
   login: (username: string, password: string) => {
-    // OAuth2 requires form data, not JSON
+    const cleanUsername = username.trim().toLowerCase();
+    // Support both form data and json
     const formData = new URLSearchParams();
-    formData.append('username', username);
+    formData.append('username', cleanUsername);
     formData.append('password', password);
     return api.post('/auth/login', formData, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
   },
+  demoLogin: () => api.post('/auth/demo-login'),
+  resetPassword: (email: string, new_password: string) =>
+    api.post('/auth/reset-password', { email: email.trim().toLowerCase(), new_password }),
   register: (email: string, password: string, full_name: string) =>
-    api.post('/auth/register', { email, password, full_name }),
+    api.post('/auth/register', { email: email.trim().toLowerCase(), password, full_name }),
   getMe: () => api.get('/auth/me'),
 };
 

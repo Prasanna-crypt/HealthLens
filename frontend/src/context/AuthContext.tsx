@@ -10,6 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean; // True if user is logged in
   loading: boolean; // True while we are checking if the user is logged in
   login: (u: string, p: string) => Promise<void>; // Function to log in
+  loginDemo: () => Promise<void>; // Function to log in with demo account
   register: (e: string, p: string, f: string) => Promise<void>; // Function to register
   logout: () => void; // Function to log out
 }
@@ -63,6 +64,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(userRes.data);
   };
 
+  const loginDemo = async () => {
+    const res = await authAPI.demoLogin();
+    if (!res?.data?.access_token) {
+      throw new Error(res?.data?.detail || 'Failed to start demo session');
+    }
+    localStorage.setItem('healthlens_token', res.data.access_token);
+    const userRes = await authAPI.getMe();
+    setUser(userRes.data);
+  };
+
   const register = async (email: string, password: string, full_name: string) => {
     // Register the user on the server
     await authAPI.register(email, password, full_name);
@@ -78,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Provide these values to all child components
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, login, loginDemo, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

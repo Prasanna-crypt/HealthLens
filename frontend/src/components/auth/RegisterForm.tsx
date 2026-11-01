@@ -30,7 +30,7 @@ export const RegisterForm: React.FC = () => {
     setError('');
     
     try {
-      await register(email, password, fullName);
+      await register(email.trim().toLowerCase(), password, fullName.trim());
       // Auto-login and go to dashboard
       window.location.href = '/dashboard';
     } catch (err: any) {

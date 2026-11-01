@@ -66,13 +66,14 @@ for prefix in ["/api", ""]:
 def startup_event():
     db = SessionLocal()
     try:
-        # Seed reference ranges if db is empty
-        if db.query(ReferenceRange).count() == 0:
-            seed_file = os.path.join(os.path.dirname(__file__), 'seed', 'reference_ranges.json')
-            if os.path.exists(seed_file):
-                with open(seed_file, 'r', encoding='utf-8') as f:
-                    ranges = json.load(f)
-                    for r in ranges:
+        # Seed reference ranges if missing
+        seed_file = os.path.join(os.path.dirname(__file__), 'seed', 'reference_ranges.json')
+        if os.path.exists(seed_file):
+            with open(seed_file, 'r', encoding='utf-8') as f:
+                ranges = json.load(f)
+                existing_names = {r[0] for r in db.query(ReferenceRange.test_name).all()}
+                for r in ranges:
+                    if r['test_name'] not in existing_names:
                         aliases_str = json.dumps(r.get('aliases', []))
                         rr = ReferenceRange(
                             test_name=r['test_name'],
@@ -84,7 +85,7 @@ def startup_event():
                             aliases=aliases_str
                         )
                         db.add(rr)
-                    db.commit()
+                db.commit()
     except Exception as e:
         print(f"[HealthLens] Startup seed notice: {e}")
     finally:

@@ -29,14 +29,58 @@ def classify_result(value: float | None, low: float | None, high: float | None) 
 
 # ── Step 2: Look up reference range from the database ───────────────────────
 
-def find_reference_range(test_name: str, db: Session) -> ReferenceRange | None:
+class FallbackRange:
+    def __init__(self, low: float, high: float, unit: str, category: str = "General", source: str = "MedlinePlus"):
+        self.low = low
+        self.high = high
+        self.unit = unit
+        self.category = category
+        self.source = source
+
+DEFAULT_FALLBACK_RANGES = {
+    "Hemoglobin": (12.0, 17.5, "g/dL", "CBC"),
+    "WBC": (4500, 11000, "/µL", "CBC"),
+    "RBC": (4.2, 5.7, "million/µL", "CBC"),
+    "Platelets": (150000, 400000, "/µL", "CBC"),
+    "Hematocrit": (36.0, 48.0, "%", "CBC"),
+    "MCV": (80.0, 100.0, "fL", "CBC"),
+    "MCH": (27.0, 33.0, "pg", "CBC"),
+    "MCHC": (32.0, 36.0, "g/dL", "CBC"),
+    "Lymphocytes": (20.0, 40.0, "%", "CBC"),
+    "Monocytes": (2.0, 8.0, "%", "CBC"),
+    "Basophils": (0.0, 2.0, "%", "CBC"),
+    "Neutrophils": (40.0, 70.0, "%", "CBC"),
+    "Eosinophils": (1.0, 4.0, "%", "CBC"),
+    "Total Cholesterol": (0.0, 200.0, "mg/dL", "Lipid Profile"),
+    "LDL Cholesterol": (0.0, 100.0, "mg/dL", "Lipid Profile"),
+    "HDL Cholesterol": (40.0, 60.0, "mg/dL", "Lipid Profile"),
+    "Triglycerides": (0.0, 150.0, "mg/dL", "Lipid Profile"),
+    "Fasting Blood Glucose": (70.0, 100.0, "mg/dL", "Blood Glucose"),
+    "HbA1c": (4.0, 5.7, "%", "Blood Glucose"),
+    "ALT": (4.0, 36.0, "U/L", "Liver Function"),
+    "AST": (8.0, 33.0, "U/L", "Liver Function"),
+    "Total Bilirubin": (0.1, 1.2, "mg/dL", "Liver Function"),
+    "Albumin": (3.4, 5.4, "g/dL", "Liver Function"),
+    "ALP": (44.0, 147.0, "U/L", "Liver Function"),
+    "Creatinine": (0.6, 1.2, "mg/dL", "Kidney Function"),
+    "BUN": (6.0, 20.0, "mg/dL", "Kidney Function"),
+    "Uric Acid": (3.0, 7.0, "mg/dL", "Kidney Function"),
+    "TSH": (0.4, 4.0, "mIU/L", "Thyroid"),
+    "T3": (80.0, 200.0, "ng/dL", "Thyroid"),
+    "T4": (5.0, 12.0, "µg/dL", "Thyroid"),
+    "Free T4": (0.8, 1.8, "ng/dL", "Thyroid"),
+}
+
+def find_reference_range(test_name: str, db: Session) -> ReferenceRange | FallbackRange | None:
     """
     Searches the database for the normal range of a test.
     Tries three ways: exact name, normalized name, and known aliases.
-    Returns a ReferenceRange object or None if not found.
+    Falls back to medical standard reference dictionary if not found in db.
     """
     if not test_name:
         return None
+
+    normalized = normalize_test_name(test_name)
 
     # Try 1: Exact name match (e.g. "Hemoglobin")
     result = db.query(ReferenceRange).filter(ReferenceRange.test_name == test_name).first()
@@ -44,7 +88,6 @@ def find_reference_range(test_name: str, db: Session) -> ReferenceRange | None:
         return result
 
     # Try 2: Normalized name (e.g. "Hb" → "Hemoglobin")
-    normalized = normalize_test_name(test_name)
     if normalized != test_name:
         result = db.query(ReferenceRange).filter(ReferenceRange.test_name == normalized).first()
         if result:
@@ -64,6 +107,11 @@ def find_reference_range(test_name: str, db: Session) -> ReferenceRange | None:
                     return ref
         except Exception:
             pass
+
+    # Try 4: Medical standard reference fallback dictionary
+    if normalized in DEFAULT_FALLBACK_RANGES:
+        low, high, unit, cat = DEFAULT_FALLBACK_RANGES[normalized]
+        return FallbackRange(low=low, high=high, unit=unit, category=cat)
 
     return None  # Not found anywhere
 

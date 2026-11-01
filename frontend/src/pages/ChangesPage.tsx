@@ -12,7 +12,9 @@ interface ChangeRow {
   absolute_change: number;
   percentage_change: number;
   direction: 'Increased' | 'Decreased' | 'Stable';
-  status: string;
+  status?: string;
+  current_status?: string;
+  previous_status?: string;
 }
 
 // Utility to ensure clean 3 decimal places without long floating point noise
@@ -30,15 +32,15 @@ export const ChangesPage: React.FC = () => {
     const fetchChanges = async () => {
       try {
         const res = await api.get('/results/changes');
-        setChanges(res.data);
+        setChanges(Array.isArray(res?.data) ? res.data : []);
       } catch (err: any) {
         // Fallback mock data if API is not ready
         if (err.response?.status === 404 || err.code === 'ERR_NETWORK') {
           console.warn("API not ready, using mock data for /api/changes");
           setChanges([
-            { test_name: 'Hemoglobin', previous_value: 13.5, current_value: 12.1, absolute_change: -1.4, percentage_change: -10.37, direction: 'Decreased', status: 'LOW' },
-            { test_name: 'Cholesterol', previous_value: 180, current_value: 210, absolute_change: 30, percentage_change: 16.67, direction: 'Increased', status: 'HIGH' },
-            { test_name: 'Vitamin D', previous_value: 30, current_value: 32, absolute_change: 2, percentage_change: 6.67, direction: 'Stable', status: 'NORMAL' },
+            { test_name: 'Hemoglobin', previous_value: 13.5, current_value: 12.1, absolute_change: -1.4, percentage_change: -10.37, direction: 'Decreased', status: 'LOW', current_status: 'LOW' },
+            { test_name: 'Cholesterol', previous_value: 180, current_value: 210, absolute_change: 30, percentage_change: 16.67, direction: 'Increased', status: 'HIGH', current_status: 'HIGH' },
+            { test_name: 'Vitamin D', previous_value: 30, current_value: 32, absolute_change: 2, percentage_change: 6.67, direction: 'Stable', status: 'NORMAL', current_status: 'NORMAL' },
           ]);
         } else {
           setError(err.response?.data?.detail || 'Failed to load changes');
@@ -93,7 +95,7 @@ export const ChangesPage: React.FC = () => {
                        <Minus className="w-4 h-4 text-gray-400 mx-auto" />}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <StatusBadge status={row.status} />
+                      <StatusBadge status={row.current_status || row.status || 'Normal'} />
                     </td>
                   </tr>
                 ))

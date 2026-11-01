@@ -29,9 +29,15 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = ''
     colorClass = 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/30';
   }
 
+  const displayStatus =
+    status.toUpperCase() === 'NORMAL' ? 'Normal' :
+    status.toUpperCase() === 'HIGH' ? 'High' :
+    status.toUpperCase() === 'LOW' ? 'Low' :
+    status;
+
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass} ${className}`}>
-      {status}
+      {displayStatus}
     </span>
   );
 };

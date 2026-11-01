@@ -33,6 +33,10 @@ class HealthChange(Base):
     previous_status = Column(String)
     current_status = Column(String)
 
+    @property
+    def status(self):
+        return self.current_status
+
 class HealthPattern(Base):
     __tablename__ = "health_patterns"
 

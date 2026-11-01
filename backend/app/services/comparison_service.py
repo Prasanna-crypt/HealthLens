@@ -66,6 +66,13 @@ def calculate_changes(current_report_id: int, user_id: int, db: Session):
 
 def get_user_changes(user_id: int, db: Session):
     changes = db.query(HealthChange).filter(HealthChange.user_id == user_id).all()
+    if not changes:
+        user_reports = db.query(Report).filter(Report.user_id == user_id).order_by(Report.report_date.asc(), Report.id.asc()).all()
+        if len(user_reports) >= 2:
+            for rep in user_reports[1:]:
+                calculate_changes(rep.id, user_id, db)
+            changes = db.query(HealthChange).filter(HealthChange.user_id == user_id).all()
+
     results = []
     has_updates = False
     

@@ -83,6 +83,8 @@ def load_demo_data(
             db.add(test_result_record)
         
         db.commit()
+        from ..services.comparison_service import calculate_changes
+        calculate_changes(report.id, current_user.id, db)
         created_count += 1
 
     return {"message": f"Successfully loaded {created_count} demo reports", "count": created_count}
